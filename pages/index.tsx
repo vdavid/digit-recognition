@@ -1,6 +1,5 @@
 import React from 'react'
 import Canvas from '../../modules/digit-recognition/Canvas'
-import { preprocessImage } from '../../modules/digit-recognition/preprocessing'
 import { useTheme } from 'next-themes'
 import DefaultLayout from '../../modules/site/DefaultLayout'
 import { PredictionResult } from '../../modules/digit-recognition/knn'
@@ -19,14 +18,13 @@ const Home: React.FC = () => {
     async function handleSubmit(pixels: number[][]) {
         setLoading(true)
         setError(null)
-        const preprocessedImage = preprocessImage(pixels)
         try {
             const response = await fetch('/api/digit-recognition/classify', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(preprocessedImage),
+                body: JSON.stringify(pixels),
             })
 
             if (!response.ok) {
