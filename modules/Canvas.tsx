@@ -15,20 +15,41 @@ const Canvas: React.FC<Props> = ({ onSubmit }) => {
     );
     const drawingRef = useRef(false);
 
-    const handleMouseDown = (x: number, y: number) => {
+    const calculateIntensity = (event: React.MouseEvent) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const cursorX = event.clientX - rect.left;
+        const cursorY = event.clientY - rect.top;
+
+        const distance = Math.sqrt(
+            Math.pow(cursorX - rect.width / 2, 2) + Math.pow(cursorY - rect.height / 2, 2)
+        );
+
+        const maxDistance = Math.sqrt(Math.pow(rect.width, 2) + Math.pow(rect.height, 2)) / 2;
+
+        const realIntensity = 255 - Math.round((distance / maxDistance) * 255)
+
+        // Make it a little brighter
+        return Math.min(255, realIntensity * 1.3 + 80);
+    };
+
+    const handleMouseDown = (event: React.MouseEvent, x: number, y: number) => {
         drawingRef.current = true;
+        const intensity = calculateIntensity(event);
+
         setPixels((prevPixels) => {
             const newPixels = [...prevPixels];
-            newPixels[y][x] = 255;
+            newPixels[y][x] = intensity;
             return newPixels;
         });
     };
 
-    const handleMouseEnter = (x: number, y: number) => {
+    const handleMouseEnter = (event: React.MouseEvent, x: number, y: number) => {
         if (!drawingRef.current) return;
+        const intensity = calculateIntensity(event);
+
         setPixels((prevPixels) => {
             const newPixels = [...prevPixels];
-            newPixels[y][x] = 255;
+            newPixels[y][x] = intensity;
             return newPixels;
         });
     };
@@ -54,8 +75,8 @@ const Canvas: React.FC<Props> = ({ onSubmit }) => {
                             key={`${x}-${y}`}
                             className={styles.cell}
                             style={{ backgroundColor: `rgb(${color}, ${color}, ${color})` }}
-                            onMouseDown={() => handleMouseDown(x, y)}
-                            onMouseEnter={() => handleMouseEnter(x, y)}
+                            onMouseDown={(event) => handleMouseDown(event, x, y)}
+                            onMouseEnter={(event) => handleMouseEnter(event, x, y)}
                         />
                     ))
                 )}
