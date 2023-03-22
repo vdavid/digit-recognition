@@ -65,9 +65,13 @@ const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {
         const intensity = calculateIntensity(rect, event, x, y)
 
         setPixels((prevPixels) => {
-            const newPixels = [...prevPixels]
-            newPixels[y][x] = Math.max(newPixels[y][x], intensity)
-            return newPixels
+            if (x >= 0 && x < size && y >= 0 && y < size) {
+                const newPixels = [...prevPixels]
+                newPixels[y][x] = Math.max(newPixels[y][x], intensity)
+                return newPixels
+            } else {
+                return prevPixels
+            }
         })
     }
 
