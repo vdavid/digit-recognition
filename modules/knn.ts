@@ -1,16 +1,31 @@
 import { MnistData } from './mnist'
 
+export type KnnDistance = {
+    index: number
+    distance: number
+}
+
+export type Match = {
+    index: number
+    digit: number
+    image: number[][]
+}
+
+export type PredictionResult = {
+    digit: number
+    matches: Match[]
+}
+
 export function knnClassifier(
     mnistData: MnistData,
     testImage: number[][],
     k: number,
-): number {
-    console.log(testImage)
+): PredictionResult {
     // Flatten the test image
     const flattenedTestImage = flattenImage(testImage)
 
     // Calculate the distance between the test image and all the training images
-    const distances: { index: number; distance: number }[] = []
+    const distances: KnnDistance[] = []
     for (let i = 0; i < mnistData.train.images.length; i++) {
         const flattenedTrainImage = flattenImage(mnistData.train.images[i])
         const distance = euclideanDistance(flattenedTestImage, flattenedTrainImage)
@@ -32,19 +47,19 @@ export function knnClassifier(
         labelCounts[label]++
     }
 
-    // Return the most common label
-    return labelCounts.indexOf(Math.max(...labelCounts))
+    // Return the most common label and the distances
+    return {
+        digit: labelCounts.indexOf(Math.max(...labelCounts)),
+        matches: kNearestNeighbors.map(neighbor => ({
+            index: neighbor.index,
+            digit: mnistData.train.labels[neighbor.index],
+            image: mnistData.train.images[neighbor.index],
+        })),
+    }
 }
 
 function flattenImage(image: number[][]): number[] {
-    const flattenedImage: number[] = []
-    for (let i = 0; i < 28; i++) {
-        for (let j = 0; j < 28; j++) {
-            flattenedImage.push(image[i][j])
-        }
-    }
-
-    return flattenedImage
+    return image.map(row => row.flat()).flat()
 }
 
 function euclideanDistance(image1: number[], image2: number[]): number {

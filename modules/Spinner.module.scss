@@ -1,0 +1,17 @@
+.spinner {
+  animation: rotate 2s linear infinite;
+  margin: 20px auto;
+
+  circle {
+    stroke: #4285f4;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
