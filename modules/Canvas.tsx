@@ -2,17 +2,16 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from './Canvas.module.scss'
 
 interface Props {
-    onSubmit: (pixels: number[][]) => void;
+    size: number;
     darkMode: boolean;
+    onSubmit: (pixels: number[][]) => void;
 }
 
-const SIZE = 28
-
-const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
+const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const drawingRef = useRef(false)
     const [pixels, setPixels] = useState<number[][]>(
-        Array.from({ length: SIZE }, () => Array(SIZE).fill(0)),
+        Array.from({ length: size }, () => Array(size).fill(0)),
     )
 
     useEffect(() => {
@@ -21,11 +20,14 @@ const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
         const ctx = canvas.getContext('2d')
         if (!ctx) return
 
-        const cellWidth = canvas.width / SIZE
-        const cellHeight = canvas.height / SIZE
+        const cellWidth = canvas.width / size
+        const cellHeight = canvas.height / size
 
         pixels.forEach((row, y) => {
             row.forEach((color, x) => {
+                if (!darkMode) {
+                    color = 255 - color
+                }
                 ctx.fillStyle = `rgb(${color}, ${color}, ${color})`
                 ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
 
@@ -35,14 +37,14 @@ const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
                 ctx.strokeRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
             })
         })
-    }, [pixels])
+    }, [darkMode, pixels, size])
 
     const calculateIntensity = (rect: DOMRect, event: React.MouseEvent, x: number, y: number) => {
         const cursorX = event.clientX - rect.left
         const cursorY = event.clientY - rect.top
 
-        const cellWidth = rect.width / SIZE
-        const cellHeight = rect.height / SIZE
+        const cellWidth = rect.width / size
+        const cellHeight = rect.height / size
 
         const cellCenterX = x * cellWidth + cellWidth / 2
         const cellCenterY = y * cellHeight + cellHeight / 2
@@ -58,8 +60,8 @@ const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
 
     function updatePixel(canvas: HTMLCanvasElement, event: React.MouseEvent) {
         const rect = canvas.getBoundingClientRect()
-        const x = Math.floor((event.clientX - rect.left) / (rect.width / SIZE))
-        const y = Math.floor((event.clientY - rect.top) / (rect.height / SIZE))
+        const x = Math.floor((event.clientX - rect.left) / (rect.width / size))
+        const y = Math.floor((event.clientY - rect.top) / (rect.height / size))
         const intensity = calculateIntensity(rect, event, x, y)
 
         setPixels((prevPixels) => {
@@ -88,15 +90,15 @@ const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
     }
 
     const clearCanvas = () => {
-        setPixels(Array.from({ length: SIZE }, () => Array(SIZE).fill(0)))
+        setPixels(Array.from({ length: size }, () => Array(size).fill(0)))
     }
 
     return (
         <div className={styles.container}>
             <canvas
                 ref={canvasRef}
-                width={SIZE * 20}
-                height={SIZE * 20}
+                width={size * 20}
+                height={size * 20}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
