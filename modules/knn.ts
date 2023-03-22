@@ -8,6 +8,7 @@ export type KnnDistance = {
 export type Match = {
     index: number
     digit: number
+    distance: number
     image: number[][]
 }
 
@@ -53,6 +54,7 @@ export function knnClassifier(
         matches: kNearestNeighbors.map(neighbor => ({
             index: neighbor.index,
             digit: mnistData.train.labels[neighbor.index],
+            distance: neighbor.distance,
             image: mnistData.train.images[neighbor.index],
         })),
     }
