@@ -6,7 +6,7 @@ interface Props {
     darkMode: boolean;
 }
 
-const SIZE = 28;
+const SIZE = 28
 
 const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -84,12 +84,12 @@ const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
     }
 
     const handleMouseUp = () => {
-        drawingRef.current = false;
-    };
+        drawingRef.current = false
+    }
 
     const clearCanvas = () => {
-        setPixels(Array.from({ length: SIZE }, () => Array(SIZE).fill(0)));
-    };
+        setPixels(Array.from({ length: SIZE }, () => Array(SIZE).fill(0)))
+    }
 
     return (
         <div className={styles.container}>
@@ -110,7 +110,7 @@ const Canvas: React.FC<Props> = ({ onSubmit, darkMode }) => {
                 Submit
             </button>
         </div>
-    );
-};
+    )
+}
 
-export default Canvas;
+export default Canvas
