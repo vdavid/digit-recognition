@@ -38,8 +38,6 @@ export function knnClassifier(
 
     // Get the k nearest neighbors
     const kNearestNeighbors = distances.slice(0, k)
-    const labels = kNearestNeighbors.map(neighbor => mnistData.train.labels[neighbor.index])
-    console.log(kNearestNeighbors, labels)
 
     // Get the most common label
     const labelCounts: number[] = Array(10).fill(0)
