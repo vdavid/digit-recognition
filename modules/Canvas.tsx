@@ -113,7 +113,7 @@ const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {
                 Clear
             </button>
             <button className={styles.button} onClick={() => onSubmit(pixels)}>
-                Submit
+                Predict what it is
             </button>
         </div>
     )

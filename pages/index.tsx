@@ -47,10 +47,12 @@ const Home: React.FC = () => {
                 <p>by David Veszelovszki and GPT-4</p>
             </header>
             <main>
+                <p>Draw a digit!</p>
                 <Canvas size={SIZE} darkMode={theme === 'dark'} onSubmit={handleSubmit}/>
                 {loading && <Spinner/>}
                 {error && <p className="error">{error}</p>}
                 <h2>Prediction: {prediction?.digit}</h2>
+                <p>Full disclosure: this is not a neural network, it’s a k-nearest neighbors algorithm, and there is some bug why it almost always guesses “1”. 😄</p>
                 <p>Matches:</p>
                 {prediction && <Matches size={SIZE} matches={prediction.matches}/>}
             </main>
