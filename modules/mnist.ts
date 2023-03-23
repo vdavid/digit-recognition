@@ -1,12 +1,12 @@
 import fs from 'fs';
-import { Buffer } from 'buffer';
+import { Buffer } from 'buffer'
+import * as https from 'https'
 
 const readInt32 = (buffer: Buffer, offset: number) => {
     return buffer.readInt32BE(offset);
 };
 
-const readImages = async (filePath: string): Promise<MnistImage[]> => {
-    const buffer = await fs.promises.readFile(filePath)
+const readImages = async (buffer: Buffer): Promise<MnistImage[]> => {
     const magicNumber = readInt32(buffer, 0)
     const numImages = readInt32(buffer, 4)
     const numRows = readInt32(buffer, 8)
@@ -34,8 +34,7 @@ const readImages = async (filePath: string): Promise<MnistImage[]> => {
     return images;
 };
 
-const readLabels = async (filePath: string): Promise<MnistLabel[]> => {
-    const buffer = await fs.promises.readFile(filePath)
+const readLabels = async (buffer: Buffer): Promise<MnistLabel[]> => {
     const magicNumber = readInt32(buffer, 0)
     const numLabels = readInt32(buffer, 4)
 
@@ -65,16 +64,49 @@ export type MnistData = {
     test: MnistImageAndLabel
 }
 
-export const loadMNIST = async (dataPath: string): Promise<MnistData> => {
-    const trainImagesPath = `${dataPath}/train-images-idx3-ubyte`
-    const trainLabelsPath = `${dataPath}/train-labels-idx1-ubyte`
-    const testImagesPath = `${dataPath}/t10k-images-idx3-ubyte`
-    const testLabelsPath = `${dataPath}/t10k-labels-idx1-ubyte`
+async function readOrDownloadFile(dataPath: string, fileName: string): Promise<Buffer> {
+    const filePath = `${dataPath}/${fileName}`
+    const url = new URL(`https://test-sdsddsds.s3.eu-west-2.amazonaws.com/mnist/${fileName}`)
 
-    const trainImages = await readImages(trainImagesPath)
-    const trainLabels = await readLabels(trainLabelsPath)
-    const testImages = await readImages(testImagesPath)
-    const testLabels = await readLabels(testLabelsPath)
+    try {
+        await fs.promises.access(filePath)
+        return await fs.promises.readFile(filePath)
+    } catch (err) {
+        return new Promise<Buffer>((resolve, reject) => {
+            https.get(url, (response) => {
+                if (response.statusCode !== 200) {
+                    reject(new Error(`Failed to download the file: ${response.statusCode}`))
+                    return
+                }
+
+                const chunks: Buffer[] = []
+                response
+                    .on('data', (chunk) => chunks.push(chunk))
+                    .on('end', async () => {
+                        const buffer = Buffer.concat(chunks)
+                        try {
+                            await fs.promises.writeFile(filePath, buffer)
+                            resolve(buffer)
+                        } catch (err) {
+                            reject(err)
+                        }
+                    })
+                    .on('error', (err) => reject(err))
+            }).on('error', (err) => reject(err))
+        })
+    }
+}
+
+export const loadMNIST = async (dataPath: string): Promise<MnistData> => {
+    const trainImagesPath = `train-images-idx3-ubyte`
+    const trainLabelsPath = `train-labels-idx1-ubyte`
+    const testImagesPath = `t10k-images-idx3-ubyte`
+    const testLabelsPath = `t10k-labels-idx1-ubyte`
+
+    const trainImages = await readImages(await readOrDownloadFile(dataPath, trainImagesPath))
+    const trainLabels = await readLabels(await readOrDownloadFile(dataPath, trainLabelsPath))
+    const testImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
+    const testLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
 
     return {
         train: {
