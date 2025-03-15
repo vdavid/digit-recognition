@@ -4,27 +4,33 @@ import { Match } from './knn'
 import { useTheme } from 'next-themes'
 
 interface Props {
-    size: number;
-    matches: Match[];
+    size: number
+    matches: Match[]
 }
 
 const Matches: React.FC<Props> = ({ size, matches }) => {
     const { theme } = useTheme()
-    return <div className={styles.container}>
-        {matches.map((match, index) => (
-            <div key={index}>
-                <div className={styles.rank}>#{index + 1}</div>
-                <div className={styles.digit}>Digit: {match.digit}</div>
-                <div className={styles.image}>
-                    <canvas ref={el => {
-                        if (el) {
-                            drawImage(size, el, match.image, theme === 'dark')
-                        }
-                    }} width={size * 5} height={size * 5}></canvas>
+    return (
+        <div className={styles.container}>
+            {matches.map((match, index) => (
+                <div key={index}>
+                    <div className={styles.rank}>#{index + 1}</div>
+                    <div className={styles.digit}>Digit: {match.digit}</div>
+                    <div className={styles.image}>
+                        <canvas
+                            ref={(el) => {
+                                if (el) {
+                                    drawImage(size, el, match.image, theme === 'dark')
+                                }
+                            }}
+                            width={size * 5}
+                            height={size * 5}
+                        ></canvas>
+                    </div>
                 </div>
-            </div>
-        ))}
-    </div>
+            ))}
+        </div>
+    )
 }
 
 const drawImage = (
@@ -49,6 +55,5 @@ const drawImage = (
         })
     })
 }
-
 
 export default Matches

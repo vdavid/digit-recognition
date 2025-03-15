@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from './Canvas.module.scss'
 
 interface Props {
-    size: number;
-    darkMode: boolean;
-    onSubmit: (pixels: number[][]) => void;
+    size: number
+    darkMode: boolean
+    onSubmit: (pixels: number[][]) => void
 }
 
 const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {

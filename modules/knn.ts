@@ -49,7 +49,7 @@ export function knnClassifier(
     // Return the most common label and the distances
     return {
         digit: labelCounts.indexOf(Math.max(...labelCounts)),
-        matches: kNearestNeighbors.map(neighbor => ({
+        matches: kNearestNeighbors.map((neighbor) => ({
             index: neighbor.index,
             digit: mnistData.train.labels[neighbor.index],
             distance: neighbor.distance,
@@ -59,7 +59,7 @@ export function knnClassifier(
 }
 
 function flattenImage(image: number[][]): number[] {
-    return image.map(row => row.flat()).flat()
+    return image.map((row) => row.flat()).flat()
 }
 
 function euclideanDistance(image1: number[], image2: number[]): number {

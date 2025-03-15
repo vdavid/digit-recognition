@@ -22,7 +22,7 @@ const readImages = async (buffer: Buffer): Promise<MnistImage[]> => {
         for (let r = 0; r < numRows; r++) {
             const row = []
             for (let c = 0; c < numCols; c++) {
-                const pixel = buffer.readUInt8(16 + (i * numRows * numCols) + (r * numCols) + c)
+                const pixel = buffer.readUInt8(16 + i * numRows * numCols + r * numCols + c)
                 row.push(pixel)
             }
             image.push(row)
@@ -51,15 +51,15 @@ const readLabels = async (buffer: Buffer): Promise<MnistLabel[]> => {
     return labels
 }
 
-export type MnistImage = number[][];
-export type MnistLabel = number;
+export type MnistImage = number[][]
+export type MnistLabel = number
 
 export type MnistImageAndLabel = {
-    images: MnistImage[],
-    labels: MnistLabel[],
+    images: MnistImage[]
+    labels: MnistLabel[]
 }
 export type MnistData = {
-    train: MnistImageAndLabel,
+    train: MnistImageAndLabel
     test: MnistImageAndLabel
 }
 
@@ -67,25 +67,27 @@ async function readOrDownloadFile(dataPath: string, fileName: string): Promise<B
     const url = new URL(`https://test-sdsddsds.s3.eu-west-2.amazonaws.com/mnist/${fileName}`)
 
     return new Promise<Buffer>((resolve, reject) => {
-        https.get(url, (response) => {
-            if (response.statusCode !== 200) {
-                reject(new Error(`Failed to download the file: ${response.statusCode}`))
-                return
-            }
+        https
+            .get(url, (response) => {
+                if (response.statusCode !== 200) {
+                    reject(new Error(`Failed to download the file: ${response.statusCode}`))
+                    return
+                }
 
-            const chunks: Buffer[] = []
-            response
-                .on('data', (chunk) => chunks.push(chunk))
-                .on('end', async () => {
-                    const buffer = Buffer.concat(chunks)
-                    try {
-                        resolve(buffer)
-                    } catch (err) {
-                        reject(err)
-                    }
-                })
-                .on('error', (err) => reject(err))
-        }).on('error', (err) => reject(err))
+                const chunks: Buffer[] = []
+                response
+                    .on('data', (chunk) => chunks.push(chunk))
+                    .on('end', async () => {
+                        const buffer = Buffer.concat(chunks)
+                        try {
+                            resolve(buffer)
+                        } catch (err) {
+                            reject(err)
+                        }
+                    })
+                    .on('error', (err) => reject(err))
+            })
+            .on('error', (err) => reject(err))
     })
 }
 
