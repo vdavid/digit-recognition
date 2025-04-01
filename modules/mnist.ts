@@ -1,5 +1,7 @@
 import { Buffer } from 'buffer'
 import * as https from 'https'
+import * as fs from 'fs'
+import * as path from 'path'
 
 const readInt32 = (buffer: Buffer, offset: number) => {
     return buffer.readInt32BE(offset)
@@ -64,6 +66,18 @@ export type MnistData = {
 }
 
 async function readOrDownloadFile(dataPath: string, fileName: string): Promise<Buffer> {
+    const filePath = path.join(dataPath, fileName)
+    
+    // Check if file exists locally
+    try {
+        if (fs.existsSync(filePath)) {
+            return fs.promises.readFile(filePath)
+        }
+    } catch (error) {
+        console.warn(`Error reading cached file: ${error}`)
+    }
+    
+    // File doesn't exist, download it
     const url = new URL(`https://test-sdsddsds.s3.eu-west-2.amazonaws.com/mnist/${fileName}`)
 
     return new Promise<Buffer>((resolve, reject) => {
@@ -80,6 +94,17 @@ async function readOrDownloadFile(dataPath: string, fileName: string): Promise<B
                     .on('end', async () => {
                         const buffer = Buffer.concat(chunks)
                         try {
+                            // Ensure directory exists
+                            try {
+                                if (!fs.existsSync(dataPath)) {
+                                    fs.mkdirSync(dataPath, { recursive: true })
+                                }
+                                // Save the file
+                                await fs.promises.writeFile(filePath, buffer)
+                                console.log(`Downloaded and saved ${fileName} to ${filePath}`)
+                            } catch (err) {
+                                console.warn(`Failed to save file locally: ${err}`)
+                            }
                             resolve(buffer)
                         } catch (err) {
                             reject(err)
