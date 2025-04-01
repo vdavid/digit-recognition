@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { euclideanDistance, flattenImage } from '@/modules/knn'
+import { euclideanDistance, flattenImage } from '../modules/knn'
 
 describe('Image Processing Utils', () => {
     describe('flattenImage', () => {

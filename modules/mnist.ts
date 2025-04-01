@@ -117,25 +117,44 @@ async function readOrDownloadFile(dataPath: string, fileName: string): Promise<B
 }
 
 export const loadMNIST = async (dataPath: string): Promise<MnistData> => {
-    //const trainImagesPath = `train-images-idx3-ubyte`
-    //const trainLabelsPath = `train-labels-idx1-ubyte`
+    const trainImagesPath = `train-images-idx3-ubyte`
+    const trainLabelsPath = `train-labels-idx1-ubyte`
     const testImagesPath = `t10k-images-idx3-ubyte`
     const testLabelsPath = `t10k-labels-idx1-ubyte`
 
-    // TODO: Temporarily using the test images because they are smaller
-    const trainImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
-    const trainLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
-    //const testImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
-    //const testLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
+    try {
+        // Try to load the full training dataset
+        const trainImages = await readImages(await readOrDownloadFile(dataPath, trainImagesPath))
+        const trainLabels = await readLabels(await readOrDownloadFile(dataPath, trainLabelsPath))
+        const testImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
+        const testLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
 
-    return {
-        train: {
-            images: trainImages,
-            labels: trainLabels,
-        },
-        test: {
-            images: [],
-            labels: [],
-        },
+        return {
+            train: {
+                images: trainImages,
+                labels: trainLabels,
+            },
+            test: {
+                images: testImages,
+                labels: testLabels,
+            },
+        }
+    } catch (error) {
+        console.warn('Failed to load full training dataset, falling back to test dataset only:', error)
+        
+        // Fallback to using just the test dataset (smaller)
+        const testImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
+        const testLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
+        
+        return {
+            train: {
+                images: testImages,
+                labels: testLabels,
+            },
+            test: {
+                images: [],
+                labels: [],
+            },
+        }
     }
 }

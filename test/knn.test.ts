@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { knnClassifier } from '@/modules/knn'
-import type { MnistData } from '@/modules/mnist'
+import { knnClassifier } from '../modules/knn'
+import type { MnistData } from '../modules/mnist'
 
 describe('KNN Classifier', () => {
     const mockMnistData: MnistData = {

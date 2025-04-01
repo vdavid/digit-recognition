@@ -17,6 +17,13 @@ export type PredictionResult = {
     matches: Match[]
 }
 
+// Function to normalize image values to range [0, 1]
+export function normalizeImage(image: number[]): number[] {
+    const max = Math.max(...image);
+    if (max === 0) return image; // Avoid division by zero
+    return image.map(pixel => pixel / max);
+}
+
 export function knnClassifier(
     mnistData: MnistData,
     testImage: number[][],
@@ -26,13 +33,13 @@ export function knnClassifier(
         throw new Error('Training data cannot be empty')
     }
 
-    // Flatten the test image
-    const flattenedTestImage = flattenImage(testImage)
+    // Flatten and normalize the test image
+    const flattenedTestImage = normalizeImage(flattenImage(testImage))
 
     // Calculate the distance between the test image and all the training images
     const distances: KnnDistance[] = []
     for (let i = 0; i < mnistData.train.images.length; i++) {
-        const flattenedTrainImage = flattenImage(mnistData.train.images[i])
+        const flattenedTrainImage = normalizeImage(flattenImage(mnistData.train.images[i]))
         const distance = euclideanDistance(flattenedTestImage, flattenedTrainImage)
         distances.push({ index: i, distance })
     }
@@ -50,9 +57,19 @@ export function knnClassifier(
         labelCounts[label]++
     }
 
+    // Find the most common label (digit)
+    let maxCount = 0;
+    let mostCommonDigit = 0;
+    for (let i = 0; i < labelCounts.length; i++) {
+        if (labelCounts[i] > maxCount) {
+            maxCount = labelCounts[i];
+            mostCommonDigit = i;
+        }
+    }
+
     // Return the most common label and the distances
     return {
-        digit: labelCounts.indexOf(Math.max(...labelCounts)),
+        digit: mostCommonDigit,
         matches: kNearestNeighbors
             .map((neighbor) => ({
                 index: neighbor.index,
@@ -65,7 +82,8 @@ export function knnClassifier(
 }
 
 export function flattenImage(image: number[][]): number[] {
-    return image.map((row) => row.flat()).flat()
+    // Handle multi-dimensional arrays by recursively flattening
+    return image.flat(Infinity) as number[];
 }
 
 export function euclideanDistance(image1: number[], image2: number[]): number {
