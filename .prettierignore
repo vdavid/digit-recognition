@@ -1,0 +1,11 @@
+/node_modules
+/coverage
+/.next
+/.idea
+/.vscode
+/.cosine
+/data
+.DS_Store
+*.pem
+.env.development.local
+pnpm-lock.yaml 
