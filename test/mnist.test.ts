@@ -19,4 +19,4 @@ describe('MNIST Data Loading', () => {
         // This test assumes the S3 URL is invalid or unreachable
         await expect(loadMNIST('')).rejects.toThrow('Failed to download the file')
     })
-}) 
+})

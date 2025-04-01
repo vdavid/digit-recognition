@@ -53,12 +53,14 @@ export function knnClassifier(
     // Return the most common label and the distances
     return {
         digit: labelCounts.indexOf(Math.max(...labelCounts)),
-        matches: kNearestNeighbors.map((neighbor) => ({
-            index: neighbor.index,
-            digit: mnistData.train.labels[neighbor.index],
-            distance: neighbor.distance,
-            image: mnistData.train.images[neighbor.index],
-        })).sort((a, b) => a.distance - b.distance), // Sort matches by distance
+        matches: kNearestNeighbors
+            .map((neighbor) => ({
+                index: neighbor.index,
+                digit: mnistData.train.labels[neighbor.index],
+                distance: neighbor.distance,
+                image: mnistData.train.images[neighbor.index],
+            }))
+            .sort((a, b) => a.distance - b.distance), // Sort matches by distance
     }
 }
 

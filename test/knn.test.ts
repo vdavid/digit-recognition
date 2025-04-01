@@ -7,11 +7,20 @@ describe('KNN Classifier', () => {
         train: {
             images: [
                 // A simple 2x2 "1" image
-                [[0, 1], [0, 1]],
+                [
+                    [0, 1],
+                    [0, 1],
+                ],
                 // A simple 2x2 "2" image (closer to "1")
-                [[0, 1], [1, 1]],
+                [
+                    [0, 1],
+                    [1, 1],
+                ],
                 // A simple 2x2 "3" image (further from "1")
-                [[1, 1], [1, 1]],
+                [
+                    [1, 1],
+                    [1, 1],
+                ],
             ],
             labels: [1, 2, 3],
         },
@@ -22,7 +31,10 @@ describe('KNN Classifier', () => {
     }
 
     it('should correctly identify a perfect match', () => {
-        const testImage = [[0, 1], [0, 1]] // A perfect match for the "1" image
+        const testImage = [
+            [0, 1],
+            [0, 1],
+        ] // A perfect match for the "1" image
         const result = knnClassifier(mockMnistData, testImage, 1)
         expect(result.digit).toBe(1)
         expect(result.matches).toHaveLength(1)
@@ -31,7 +43,10 @@ describe('KNN Classifier', () => {
     })
 
     it('should handle k=2 and return the most common digit', () => {
-        const testImage = [[0, 1], [0, 1]] // Closest to "1"
+        const testImage = [
+            [0, 1],
+            [0, 1],
+        ] // Closest to "1"
         const result = knnClassifier(mockMnistData, testImage, 2)
         expect(result.digit).toBe(1)
         expect(result.matches).toHaveLength(2)
@@ -40,11 +55,14 @@ describe('KNN Classifier', () => {
     })
 
     it('should handle k=3 and return the most common digit', () => {
-        const testImage = [[0, 1], [0, 1]] // Closest to "1"
+        const testImage = [
+            [0, 1],
+            [0, 1],
+        ] // Closest to "1"
         const result = knnClassifier(mockMnistData, testImage, 3)
         expect(result.digit).toBe(1)
         expect(result.matches).toHaveLength(3)
-        expect(result.matches.map(m => m.digit)).toEqual([1, 2, 3])
+        expect(result.matches.map((m) => m.digit)).toEqual([1, 2, 3])
     })
 
     it('should handle empty training data', () => {
@@ -58,13 +76,19 @@ describe('KNN Classifier', () => {
                 labels: [],
             },
         }
-        const testImage = [[0, 1], [0, 1]]
+        const testImage = [
+            [0, 1],
+            [0, 1],
+        ]
         expect(() => knnClassifier(emptyMnistData, testImage, 1)).toThrow()
     })
 
     it('should handle k larger than training data size', () => {
-        const testImage = [[0, 1], [0, 1]]
+        const testImage = [
+            [0, 1],
+            [0, 1],
+        ]
         const result = knnClassifier(mockMnistData, testImage, 5)
         expect(result.matches).toHaveLength(3) // Should only return all available matches
     })
-}) 
+})

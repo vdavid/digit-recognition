@@ -43,4 +43,4 @@ describe('Image Processing Utils', () => {
             expect(() => euclideanDistance(vec1, vec2)).toThrow()
         })
     })
-}) 
+})
