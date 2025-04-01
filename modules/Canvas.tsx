@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styles from './Canvas.module.scss'
+import { logger } from '../utils/logger'
 
 interface Props {
     size: number
@@ -13,6 +14,8 @@ const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {
     const [pixels, setPixels] = useState<number[][]>(
         Array.from({ length: size }, () => Array(size).fill(0)),
     )
+    const [isSaving, setIsSaving] = useState<boolean>(false)
+    const [correctDigit, setCorrectDigit] = useState<string>('')
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -95,6 +98,47 @@ const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {
 
     const clearCanvas = () => {
         setPixels(Array.from({ length: size }, () => Array(size).fill(0)))
+        setCorrectDigit('')
+    }
+
+    const handleSaveDigit = async () => {
+        if (!correctDigit || !/^[0-9]$/.test(correctDigit)) {
+            alert('Please enter a valid digit (0-9) before saving')
+            return
+        }
+
+        setIsSaving(true)
+        try {
+            const response = await fetch('/api/digit-recognition/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pixels,
+                    digit: parseInt(correctDigit),
+                }),
+            })
+
+            if (response.ok) {
+                alert('Digit saved successfully!')
+                clearCanvas()
+            } else {
+                const error = await response.text()
+                throw new Error(error)
+            }
+        } catch (error) {
+            logger.error('Error saving digit:', error)
+            alert('Failed to save the digit. Please try again.')
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handleDigitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Only allow single digits 0-9
+        const value = e.target.value.replace(/[^0-9]/g, '')
+        setCorrectDigit(value.slice(0, 1))
     }
 
     return (
@@ -109,12 +153,31 @@ const Canvas: React.FC<Props> = ({ size, darkMode, onSubmit }) => {
                 onMouseLeave={handleMouseUp}
                 className={styles.canvas}
             ></canvas>
-            <button className={styles.button} onClick={clearCanvas}>
-                Clear
-            </button>
-            <button className={styles.button} onClick={() => onSubmit(pixels)}>
-                Predict what it is
-            </button>
+            <div className={styles.controls}>
+                <button className={styles.button} onClick={clearCanvas}>
+                    Clear
+                </button>
+                <button className={styles.button} onClick={() => onSubmit(pixels)}>
+                    Predict what it is
+                </button>
+                <div className={styles.saveControls}>
+                    <input
+                        type="text"
+                        value={correctDigit}
+                        onChange={handleDigitChange}
+                        placeholder="Actual digit (0-9)"
+                        className={styles.digitInput}
+                        maxLength={1}
+                    />
+                    <button
+                        className={styles.saveButton}
+                        onClick={handleSaveDigit}
+                        disabled={isSaving || !correctDigit}
+                    >
+                        {isSaving ? 'Saving...' : 'Save for training'}
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }

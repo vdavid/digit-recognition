@@ -2,6 +2,7 @@ import { Buffer } from 'buffer'
 import * as https from 'https'
 import * as fs from 'fs'
 import * as path from 'path'
+import { logger } from '../utils/logger'
 
 const readInt32 = (buffer: Buffer, offset: number) => {
     return buffer.readInt32BE(offset)
@@ -67,16 +68,16 @@ export type MnistData = {
 
 async function readOrDownloadFile(dataPath: string, fileName: string): Promise<Buffer> {
     const filePath = path.join(dataPath, fileName)
-    
+
     // Check if file exists locally
     try {
         if (fs.existsSync(filePath)) {
             return fs.promises.readFile(filePath)
         }
     } catch (error) {
-        console.warn(`Error reading cached file: ${error}`)
+        logger.warn(`Error reading cached file: ${error}`)
     }
-    
+
     // File doesn't exist, download it
     const url = new URL(`https://test-sdsddsds.s3.eu-west-2.amazonaws.com/mnist/${fileName}`)
 
@@ -101,9 +102,9 @@ async function readOrDownloadFile(dataPath: string, fileName: string): Promise<B
                                 }
                                 // Save the file
                                 await fs.promises.writeFile(filePath, buffer)
-                                console.log(`Downloaded and saved ${fileName} to ${filePath}`)
+                                logger.info(`Downloaded and saved ${fileName} to ${filePath}`)
                             } catch (err) {
-                                console.warn(`Failed to save file locally: ${err}`)
+                                logger.warn(`Failed to save file locally: ${err}`)
                             }
                             resolve(buffer)
                         } catch (err) {
@@ -129,32 +130,81 @@ export const loadMNIST = async (dataPath: string): Promise<MnistData> => {
         const testImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
         const testLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
 
+        // Ensure balanced dataset - sample an equal number of each digit
+        const balancedData = balanceDataset(trainImages, trainLabels)
+
         return {
-            train: {
-                images: trainImages,
-                labels: trainLabels,
-            },
+            train: balancedData,
             test: {
                 images: testImages,
                 labels: testLabels,
             },
         }
     } catch (error) {
-        console.warn('Failed to load full training dataset, falling back to test dataset only:', error)
-        
+        logger.warn('Failed to load full training dataset, falling back to test dataset only:', error)
+
         // Fallback to using just the test dataset (smaller)
         const testImages = await readImages(await readOrDownloadFile(dataPath, testImagesPath))
         const testLabels = await readLabels(await readOrDownloadFile(dataPath, testLabelsPath))
-        
+
+        // Balance even the test dataset
+        const balancedData = balanceDataset(testImages, testLabels)
+
         return {
-            train: {
-                images: testImages,
-                labels: testLabels,
-            },
+            train: balancedData,
             test: {
                 images: [],
                 labels: [],
             },
         }
+    }
+}
+
+// Function to ensure we have a balanced dataset with equal examples of each digit
+function balanceDataset(images: MnistImage[], labels: MnistLabel[]): MnistImageAndLabel {
+    // Group images by their digit label
+    const digitGroups: { [key: number]: MnistImage[] } = {}
+
+    // Initialize all digit groups
+    for (let i = 0; i < 10; i++) {
+        digitGroups[i] = []
+    }
+
+    // Group all images by digit
+    for (let i = 0; i < labels.length; i++) {
+        const label = labels[i]
+        digitGroups[label].push(images[i])
+    }
+
+    // Find the smallest group size to ensure balance
+    const minGroupSize = Math.min(...Object.values(digitGroups).map((group) => group.length))
+
+    // Take an equal number of samples from each group
+    const samplesPerDigit = Math.min(minGroupSize, 500) // Max 500 samples per digit to keep it manageable
+
+    // Create balanced dataset
+    const balancedImages: MnistImage[] = []
+    const balancedLabels: MnistLabel[] = []
+
+    for (let digit = 0; digit < 10; digit++) {
+        // Shuffle the digit group to get random samples
+        const shuffled = [...digitGroups[digit]].sort(() => 0.5 - Math.random())
+
+        // Take samples
+        const samples = shuffled.slice(0, samplesPerDigit)
+
+        // Add to balanced dataset
+        for (const sample of samples) {
+            balancedImages.push(sample)
+            balancedLabels.push(digit)
+        }
+    }
+
+    // Log for debugging
+    logger.debug(`Created balanced dataset with ${balancedImages.length} images (${samplesPerDigit} per digit)`)
+
+    return {
+        images: balancedImages,
+        labels: balancedLabels,
     }
 }

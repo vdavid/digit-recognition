@@ -2,35 +2,88 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-top: 1rem;
-    justify-content: center;
+    width: 100%;
+}
 
-    > div {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: center;
-        border: 1px solid #ccc;
-        padding: 1rem;
-        border-radius: 5px;
-        background-color: #f5f5f5;
+.confidence {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+}
 
-        .rank {
-            font-weight: bold;
-        }
+.highConfidence {
+    color: #2e7d32;
+}
 
-        .digit {
-            font-size: 1.1rem;
-        }
+.mediumConfidence {
+    color: #ed6c02;
+}
 
-        .image {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
+.lowConfidence {
+    color: #d32f2f;
+}
+
+.matchItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 }
 
-html[data-theme='dark'] .container > div {
-    background-color: #333;
+.rank {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #757575;
+    margin-bottom: 0.25rem;
+}
+
+.digit {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0.25rem 0;
+}
+
+.distance {
+    font-size: 0.9rem;
+    color: #757575;
+    margin-bottom: 0.5rem;
+}
+
+.image {
+    canvas {
+        display: block;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+}
+
+// Dark mode overrides
+:global(.dark) {
+    .confidence {
+        background-color: #333;
+    }
+
+    .matchItem {
+        background-color: #333;
+    }
+
+    .image canvas {
+        background-color: #222;
+        border-color: #444;
+    }
 }

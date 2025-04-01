@@ -4,11 +4,19 @@
     "rules": {
         "prettier/prettier": "error",
         "no-unused-vars": "error",
-        "no-console": "warn",
+        "no-console": ["warn", { "allow": ["time", "timeEnd"] }],
         "quotes": ["error", "single"],
         "jsx-quotes": ["error", "prefer-double"],
         "indent": ["error", 4],
         "semi": ["error", "never"],
         "comma-dangle": ["error", "always-multiline"]
-    }
+    },
+    "overrides": [
+        {
+            "files": ["utils/logger.ts", "test/**/*.ts", "test/**/*.tsx"],
+            "rules": {
+                "no-console": "off"
+            }
+        }
+    ]
 }

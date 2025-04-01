@@ -5,6 +5,8 @@ import { PredictionResult } from '@/modules/knn'
 import Spinner from '../modules/Spinner'
 import Matches from '../modules/Matches'
 import Layout from '../modules/Layout'
+import Link from 'next/link'
+import styles from './index.module.scss'
 
 const SIZE = 28
 
@@ -45,19 +47,43 @@ const Home: React.FC = () => {
             <header>
                 <h1>Digit Recognition</h1>
                 <p>by David Veszelovszki and GPT-4</p>
+                <div className={styles.navLinks}>
+                    <Link href="/analysis" className={styles.analysisLink}>
+                        View Dataset Analysis
+                    </Link>
+                </div>
             </header>
             <main>
                 <p>Draw a digit!</p>
                 <Canvas size={SIZE} darkMode={theme === 'dark'} onSubmit={handleSubmit} />
                 {loading && <Spinner />}
-                {error && <p className="error">{error}</p>}
-                <h2>Prediction: {prediction?.digit}</h2>
-                <p>
-                    Full disclosure: this is not a neural network, it&apos;s a k-nearest neighbors
-                    algorithm, and there is some bug why it almost always guesses &quot;1&quot;. 😄
-                </p>
-                <p>Matches:</p>
-                {prediction && <Matches size={SIZE} matches={prediction.matches} />}
+                {error && <p className={styles.error}>{error}</p>}
+
+                {prediction && (
+                    <div className={styles.predictionSection}>
+                        <h2 className={styles.prediction}>
+                            Prediction: <span className={styles.digit}>{prediction.digit}</span>
+                            {prediction.confidence && (
+                                <span className={styles.confidenceLabel}>
+                                    ({prediction.confidence}% confidence)
+                                </span>
+                            )}
+                        </h2>
+
+                        <p className={styles.description}>
+                            This app uses a k-nearest neighbors algorithm, which compares your
+                            drawing to a database of sample digits and finds the closest matches.
+                            Save your digits to help improve the model!
+                        </p>
+
+                        <h3>Closest matches:</h3>
+                        <Matches
+                            size={SIZE}
+                            matches={prediction.matches}
+                            confidence={prediction.confidence}
+                        />
+                    </div>
+                )}
             </main>
         </Layout>
     )

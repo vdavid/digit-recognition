@@ -6,16 +6,36 @@ import { useTheme } from 'next-themes'
 interface Props {
     size: number
     matches: Match[]
+    confidence?: number
 }
 
-const Matches: React.FC<Props> = ({ size, matches }) => {
+const Matches: React.FC<Props> = ({ size, matches, confidence }) => {
     const { theme } = useTheme()
     return (
         <div className={styles.container}>
+            {confidence !== undefined && (
+                <div className={styles.confidence}>
+                    <span>Confidence: </span>
+                    <span
+                        className={
+                            confidence > 80
+                                ? styles.highConfidence
+                                : confidence > 50
+                                  ? styles.mediumConfidence
+                                  : styles.lowConfidence
+                        }
+                    >
+                        {confidence}%
+                    </span>
+                </div>
+            )}
             {matches.map((match, index) => (
-                <div key={index}>
+                <div key={index} className={styles.matchItem}>
                     <div className={styles.rank}>#{index + 1}</div>
                     <div className={styles.digit}>Digit: {match.digit}</div>
+                    <div className={styles.distance}>
+                        Similarity: {Math.round((1 - match.distance) * 100)}%
+                    </div>
                     <div className={styles.image}>
                         <canvas
                             ref={(el) => {
