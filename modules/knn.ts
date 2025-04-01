@@ -22,6 +22,10 @@ export function knnClassifier(
     testImage: number[][],
     k: number,
 ): PredictionResult {
+    if (!mnistData.train.images.length || !mnistData.train.labels.length) {
+        throw new Error('Training data cannot be empty')
+    }
+
     // Flatten the test image
     const flattenedTestImage = flattenImage(testImage)
 
@@ -54,15 +58,18 @@ export function knnClassifier(
             digit: mnistData.train.labels[neighbor.index],
             distance: neighbor.distance,
             image: mnistData.train.images[neighbor.index],
-        })),
+        })).sort((a, b) => a.distance - b.distance), // Sort matches by distance
     }
 }
 
-function flattenImage(image: number[][]): number[] {
+export function flattenImage(image: number[][]): number[] {
     return image.map((row) => row.flat()).flat()
 }
 
-function euclideanDistance(image1: number[], image2: number[]): number {
+export function euclideanDistance(image1: number[], image2: number[]): number {
+    if (image1.length !== image2.length) {
+        throw new Error('Vectors must have the same length')
+    }
     let sum = 0
     for (let i = 0; i < image1.length; i++) {
         sum += Math.pow(image1[i] - image2[i], 2)

@@ -1,7 +1,7 @@
 import React from 'react'
 import Canvas from '../modules/Canvas'
 import { useTheme } from 'next-themes'
-import { PredictionResult } from '../modules/knn'
+import { PredictionResult } from '@/modules/knn'
 import Spinner from '../modules/Spinner'
 import Matches from '../modules/Matches'
 import Layout from '../modules/Layout'
