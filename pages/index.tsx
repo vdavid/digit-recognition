@@ -1,10 +1,10 @@
 import React from 'react'
-import Canvas from '../../modules/digit-recognition/Canvas'
+import Canvas from '../modules/Canvas'
 import { useTheme } from 'next-themes'
-import DefaultLayout from '../../modules/site/DefaultLayout'
-import { PredictionResult } from '../../modules/digit-recognition/knn'
-import Spinner from '../../modules/digit-recognition/Spinner'
-import Matches from '../../modules/digit-recognition/Matches'
+import { PredictionResult } from '../modules/knn'
+import Spinner from '../modules/Spinner'
+import Matches from '../modules/Matches'
+import Layout from '../modules/Layout'
 
 const SIZE = 28
 
@@ -41,9 +41,9 @@ const Home: React.FC = () => {
     }
 
     return (
-        <DefaultLayout title="Digit recognition | David Veszelovszki" description="I like carrots.">
+        <Layout title="Digit Recognition" description="Draw a digit and let the AI recognize it!">
             <header>
-                <h1>Digit recognition</h1>
+                <h1>Digit Recognition</h1>
                 <p>by David Veszelovszki and GPT-4</p>
             </header>
             <main>
@@ -53,13 +53,13 @@ const Home: React.FC = () => {
                 {error && <p className="error">{error}</p>}
                 <h2>Prediction: {prediction?.digit}</h2>
                 <p>
-                    Full disclosure: this is not a neural network, it’s a k-nearest neighbors
-                    algorithm, and there is some bug why it almost always guesses “1”. 😄
+                    Full disclosure: this is not a neural network, it&apos;s a k-nearest neighbors
+                    algorithm, and there is some bug why it almost always guesses &quot;1&quot;. 😄
                 </p>
                 <p>Matches:</p>
                 {prediction && <Matches size={SIZE} matches={prediction.matches} />}
             </main>
-        </DefaultLayout>
+        </Layout>
     )
 }
 
